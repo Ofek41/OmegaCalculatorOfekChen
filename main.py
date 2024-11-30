@@ -1,8 +1,7 @@
 # Importing my modules:
-from operands_class import *
-from exceptions import *
-# Global dictionary that holds all the operands:
-OPERANDS = {"+": Add(),
+from operators import *
+# Global dictionary that holds all the operators:
+OPERATORS = {"+": Add(),
              "-": Sub(),
              "*": Multiply(),
              "/": Division(),
@@ -12,4 +11,5 @@ OPERANDS = {"+": Add(),
              "&": Minimum(),
             "%": Modulo(),
             "~":Negative(),
-            "!": Factorial()}
+            "!": Factorial()
+             }
