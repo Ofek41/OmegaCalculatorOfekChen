@@ -1,5 +1,4 @@
 # This module is used for parsing the expression and making it ready for calculation.
-
 from custom_exceptions import InvalidParenthesesError
 from main import OPERATORS
 def expression_to_list(expression: str) -> list:
@@ -173,3 +172,32 @@ def apply_tilde(tokens_list)->list:
             new_tokens.append(token)
             index += 1
     return new_tokens
+
+def validate_operators(tokens):
+    """
+    This function gets a token list of the expression and validating all the operators in it,
+    including position and validation of the operands.
+    """
+    for index, token in enumerate(tokens):
+        # Checking if the token in the expression is an operator from the global OPERATORS dict.
+        # If so, the function gets its details.
+        if token in OPERATORS.keys():
+            operator = OPERATORS[token]
+            position = operator.position()
+            if position == "middle": # If the position is middle, check both sides of the operator:
+                if index == 0 or index == len(tokens) - 1:
+                    raise ValueError(f"{token} needs to have operands from both sides!")
+                left_operand = tokens[index -1]
+                right_operand = tokens[index+1]
+                # Validating the operands' types:
+                operator.validate(left_operand, right_operand)
+            elif position == "left": # If the position is middle, check right side of the operator:
+                if index == len(tokens) - 1:
+                    raise ValueError(f"{token} needs to have an operand on the right side!")
+                right_operand = tokens[index+1]
+                operator.validate(right_operand)
+            elif position == "right": # If the position is right, check left side of the operator:
+                if index == 0:
+                    raise ValueError(f"{token} needs to have an operand on the left side!")
+                left_operand = tokens[index-1]
+                operator.validate(left_operand)
