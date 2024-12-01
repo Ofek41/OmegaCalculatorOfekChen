@@ -1,4 +1,4 @@
-from base_operator import Operator
+from .base_operator import Operator
 class Division(Operator):
     def position(self):
         return "middle"

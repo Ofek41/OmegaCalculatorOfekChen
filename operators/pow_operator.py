@@ -1,4 +1,4 @@
-from base_operator import Operator
+from .base_operator import Operator
 from math import pow
 
 class Power(Operator):

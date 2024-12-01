@@ -1,4 +1,4 @@
-from base_operator import Operator
+from .base_operator import Operator
 class Negative(Operator):
     def priority(self):
         return 6

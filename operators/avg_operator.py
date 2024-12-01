@@ -1,4 +1,4 @@
-from base_operator import Operator
+from .base_operator import Operator
 
 class Average(Operator):
     def position(self):

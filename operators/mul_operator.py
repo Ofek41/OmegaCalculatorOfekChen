@@ -1,4 +1,4 @@
-from base_operator import Operator
+from .base_operator import Operator
 class Multiply(Operator):
     def position(self):
         return "middle"
