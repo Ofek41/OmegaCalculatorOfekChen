@@ -1,6 +1,4 @@
 import pytest
-from process_expression import check_full_validation_of_expression
-from custom_exceptions import *
 from implementing_custom_exceptions import *
 
 def test_invalid_char():
