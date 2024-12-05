@@ -1,5 +1,5 @@
 import pytest
-from process_expression import infix_to_postfix
+from process_expression import infix_to_postfix, postfix_calculation
 from custom_exceptions import InvalidParenthesesError
 
 def test_simple_expression():
@@ -34,3 +34,23 @@ def test_invalid():
 def test_empty():
     with pytest.raises(ValueError, match="The expression is empty"):
         infix_to_postfix("")
+
+def test_simple_postfix():
+    exp = "34+"
+    assert postfix_calculation(exp)==7
+
+def test_complex_postfix():
+    exp = "3 4 2 + *"
+    assert postfix_calculation(exp)==18
+
+def test_postfix_with_negative():
+    exp = "-3 4 +"
+    assert postfix_calculation(exp)==1
+
+def test_postfix_with_decimal():
+    exp = "3.14 2 1 + *"
+    assert postfix_calculation(exp)==9.42
+
+def test_divide_by_zero():
+    with pytest.raises(ZeroDivisionError):
+        postfix_calculation("4 0 /")
