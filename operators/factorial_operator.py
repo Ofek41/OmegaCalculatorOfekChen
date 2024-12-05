@@ -3,13 +3,14 @@ class Factorial(Operator):
     def priority(self):
         return 6
     def position(self):
-        return "right"
+        return "left"
     @staticmethod
-    def operate(self, op):
-        if not isinstance(op, int) or op<0:
-            raise ValueError("Can only factorial on non-negative integers.")
-        if op==0: return 1
+    def operate(op):
+        if not isinstance(op, int) or op < 0:
+            raise ValueError("Factorial is only defined for non-negative integers.")
+        if op == 0:
+            return 1
         result = 1
-        for index in range(1, op+1):
-            result*=index
+        for i in range(1, op + 1):
+            result *= i
         return result

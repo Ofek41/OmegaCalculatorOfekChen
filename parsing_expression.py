@@ -1,6 +1,7 @@
 # This module is used for parsing the expression and making it ready for calculation.
 from custom_exceptions import InvalidParenthesesError, UnmatchedOperandsAndOperatorsError
-from main import OPERATORS
+from operators_config import OPERATORS
+
 def expression_to_list(expression: str) -> list:
     """
     This functions gets a string expression and returns a list in which every char appears individually.
@@ -8,41 +9,36 @@ def expression_to_list(expression: str) -> list:
     Float numbers will be appended to the list as one string.
     """
     tokens = []
-    number=""
+    number = ""
     for char in expression:
-        if char.isdigit() or char=='.': number+=char
+        if char.isdigit() or char == '.':
+            number += char
         else:
             if number:
                 tokens.append(number)
                 number = ""
-            if char.strip(): tokens.append(char)
-    if number: tokens.append(number)
+            if char.strip():
+                tokens.append(char)
+    if number:
+        tokens.append(number)
     return tokens
 
-def deal_with_minus(expression_list) -> list:
+def deal_with_minus(tokens) -> list:
     """
     This function deals with every minus in the expression and creates a new list.
     """
-    tokens = []
-    index = 0
-    while index < len(expression_list):
-        token = expression_list[index]
+    new_tokens = []
+    for index, token in enumerate(tokens):
         if token == '-':
-            if index == 0 or (tokens and tokens[-1] in OPERATORS.keys() or tokens[-1] == '('):
-                next_token = expression_list[index + 1] if index + 1 < len(expression_list) else None
-                # Check if the next token is a number
-                if next_token and next_token.replace('.', '', 1).isdigit():
-                    # Convert to float and make it negative
-                    tokens.append(str(-float(next_token)))
-                    index += 1  # Skip the next token.
-                else:
-                    raise ValueError("You used minus operator in an invalid way.")
+            if index == 0 or tokens[index - 1] in OPERATORS.keys() or tokens[index - 1] == '(':
+                # Replace unary minus with tilde:
+                new_tokens.append('~')
             else:
-                tokens.append(token)
+                # Binary minus:
+                new_tokens.append(token)
         else:
-            tokens.append(token)
-        index += 1
-    return tokens
+            new_tokens.append(token)
+    return new_tokens
 
 def process_parentheses(tokens)->list:
     """
@@ -85,27 +81,28 @@ def process_tilde(tokens_list) -> list:
     while index < len(tokens_list):
         token = tokens_list[index]
         if token == '~':
-            # Tilde cannot be after a number or a closing parenthesis
+            # Tilde cannot be after a number or a closing parenthesis:
             if index > 0:
                 prev_token = tokens_list[index - 1]
                 if prev_token.replace('.', '', 1).isdigit() or prev_token == ')':
                     raise ValueError("Tilde cannot be after a number or parenthesis.")
-            # Tilde cannot be at the end of the expression
+            # Tilde cannot be at the end of the expression:
             if index + 1 >= len(tokens_list):
-                raise ValueError("Invalid using of tilde at the end!")
+                raise ValueError("Invalid use of tilde at the end of expression.")
             next_token = tokens_list[index + 1]
-            # Check if the next token is valid
+            # If the next token is a number, negate it:
             if next_token.replace('.', '', 1).isdigit():
-                # If next token is a number, add the negative number of it.
-                new_tokens.append(str(-float(next_token)))
-                index += 1  # Skip the next token since it's processed
+                negated_value = -float(next_token)
+                if negated_value.is_integer():
+                    negated_value = int(negated_value)
+                new_tokens.append(str(negated_value))
+                index += 1
             elif next_token == '(':
-                # If next token is a parenthesis, add tilde and parenthesis
-                new_tokens.append('-')
-                new_tokens.append('(')
+                # Tilde before parentheses:
+                new_tokens.append(token)
             elif next_token == '~':
-                # If next token is another tilde, skip it.
-                pass
+                # Multiple tildes:
+                new_tokens.append(token)
             else:
                 raise ValueError("Invalid token after tilde.")
         else:
@@ -161,7 +158,7 @@ def apply_tilde(tokens_list)->list:
                 # Deals with parenthesis in the expression:
                 if negative:
                     # If we need to negate, add a minus sign before the opening parenthesis
-                    new_tokens.append('-')
+                    new_tokens.append('~')
                 # Add the opening parenthesis
                 new_tokens.append('(')
                 index += 1
@@ -189,70 +186,26 @@ def validate_operators(tokens):
     including position and validation of the operands.
     """
     for index, token in enumerate(tokens):
-        # Checking if the token in the expression is an operator from the global OPERATORS dict.
-        # If so, the function gets its details.
         if token in OPERATORS.keys():
             operator = OPERATORS[token]
             position = operator.position()
-
-            if position == "middle":  # If the position is middle, check both sides of the operator:
+            if position == "middle":
                 if index == 0 or index == len(tokens) - 1:
                     raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have operands from both sides!")
-
-                # Skip parentheses and find the left operand
-                left_operand_index = index - 1
-                while left_operand_index >= 0 and tokens[left_operand_index] in ['(', ')']:
-                    left_operand_index -= 1
-                if left_operand_index < 0:
-                    raise ValueError(f"Invalid left operand for operator '{token}'!")
-                left_operand = tokens[left_operand_index]
-
-                # Skip parentheses and find the right operand
-                right_operand_index = index + 1
-                while right_operand_index < len(tokens) and tokens[right_operand_index] in ['(', ')']:
-                    right_operand_index += 1
-                if right_operand_index >= len(tokens):
-                    raise ValueError(f"Invalid right operand for operator '{token}'!")
-                right_operand = tokens[right_operand_index]
-
-                # Convert operands to float for validation
-                try:
-                    left_operand = float(left_operand)
-                    right_operand = float(right_operand)
-                except ValueError:
+                if tokens[index - 1] in OPERATORS.keys() or tokens[index + 1] in OPERATORS.keys():
                     raise ValueError(f"Invalid operands for operator '{token}'!")
-
-                # Validating the operands' types:
-                operator.validate(left_operand, right_operand)
-
-            elif position == "left":  # If the position is left, check the right side of the operator:
+            elif position == "left":
+                if index == 0:
+                    if token == '~':
+                        # Allow '~' at the beginning (unary minus)
+                        continue
+                    else:
+                        raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the left side!")
+                if tokens[index - 1] in OPERATORS.keys() and OPERATORS[tokens[index - 1]].position() != 'left':
+                    raise ValueError(f"Invalid operand for operator '{token}'!")
+            elif position == "right":
                 if index == len(tokens) - 1:
                     raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the right side!")
-                right_operand_index = index + 1
-                while right_operand_index < len(tokens) and tokens[right_operand_index] in ['(', ')']:
-                    right_operand_index += 1
-                if right_operand_index >= len(tokens):
-                    raise ValueError(f"Invalid right operand for operator '{token}'!")
-                right_operand = tokens[right_operand_index]
-
-                # Convert operand to float for validation
-                try:
-                    right_operand = float(right_operand)
-                except ValueError:
+                # Allow multiple prefix operators
+                if tokens[index + 1] in OPERATORS.keys() and OPERATORS[tokens[index + 1]].position() != 'right':
                     raise ValueError(f"Invalid operand for operator '{token}'!")
-                operator.validate(right_operand)
-            elif position == "right":  # If the position is right, check the left side of the operator:
-                if index == 0:
-                    raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the left side!")
-                left_operand_index = index - 1
-                while left_operand_index >= 0 and tokens[left_operand_index] in ['(', ')']:
-                    left_operand_index -= 1
-                if left_operand_index < 0:
-                    raise ValueError(f"Invalid left operand for operator '{token}'!")
-                left_operand = tokens[left_operand_index]
-                # Convert operand to float for validation
-                try:
-                    left_operand = float(left_operand)
-                except ValueError:
-                    raise ValueError(f"Invalid operand for operator '{token}'!")
-                operator.validate(left_operand)

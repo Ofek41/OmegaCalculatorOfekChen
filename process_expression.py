@@ -1,14 +1,14 @@
 from parsing_expression import *
 from implementing_custom_exceptions import *
 from operators import *
-from main import OPERATORS
+from operators_config import OPERATORS
 
 def check_full_validation_of_expression(expression: str) -> list:
     """
     This function gets the string expression and makes all the required validations,
     according to the functions in the parsing_expression file.
     """
-    if not expression.strip(): # Checks if the expression is empty or including only white spaces
+    if not expression.strip():
         raise ValueError("The expression is empty")
     check_invalid_character(expression)
     check_gibberish_expression(expression)
@@ -35,39 +35,52 @@ def infix_to_postfix(expression: str):
     Handles negative numbers and relies on `check_full_validation_of_expression` for validation.
     """
     tokens = check_full_validation_of_expression(expression)
-    stack = []  # Stack for operators
-    postfix_expression = []  # List for postfix result
-    index = 0
-    while index < len(tokens):
-        token = tokens[index]
+    stack = []
+    postfix_expression = []
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
         if token not in OPERATORS.keys() and token not in "()":
             postfix_expression.append(token)
-        # Negative number case:
-        elif token == '-' and (index == 0 or tokens[index - 1] in OPERATORS.keys() or tokens[index - 1] == '('):
-            if index + 1 < len(tokens) and tokens[index + 1].replace('.', '', 1).isdigit():
-                postfix_expression.append('-' + tokens[index + 1])  # Combine the negative sign with the number
-                index += 1
-            else:
-                raise ValueError("Invalid use of '-' operator.")
-        # Opening parenthesis:
+            i += 1
+            # Handle postfix operators
+            while i < len(tokens) and tokens[i] in OPERATORS.keys() and OPERATORS[tokens[i]].position() == 'left':
+                postfix_expression.append(tokens[i])
+                i += 1
         elif token == '(':
             stack.append(token)
-        # Closing parenthesis:
+            i += 1
         elif token == ')':
             while stack and stack[-1] != '(':
                 postfix_expression.append(stack.pop())
-            stack.pop()  # Remove the opening parenthesis
-        # Operator:
+            if not stack or stack[-1] != '(':
+                raise ValueError("Mismatched parentheses")
+            stack.pop()
+            i += 1
+            # Handle postfix operators after parentheses
+            while i < len(tokens) and tokens[i] in OPERATORS.keys() and OPERATORS[tokens[i]].position() == 'left':
+                postfix_expression.append(tokens[i])
+                i += 1
         else:
-            while (stack and stack[-1] != '(' and
-                   OPERATORS.get(token).priority() <= OPERATORS.get(stack[-1]).priority()):
-                postfix_expression.append(stack.pop())
-            stack.append(token)
-        index += 1
-    # Pop any remaining operators in the stack
+            operator = OPERATORS[token]
+            position = operator.position()
+            if position == 'right':  # Prefix operator
+                stack.append(token)
+                i += 1
+            elif position == 'middle':
+                while (stack and stack[-1] != '(' and
+                       OPERATORS.get(stack[-1]).priority() >= operator.priority()):
+                    postfix_expression.append(stack.pop())
+                stack.append(token)
+                i += 1
+            else:
+                raise ValueError(f"Unexpected operator '{token}' in this context")
     while stack:
+        if stack[-1] == '(' or stack[-1] == ')':
+            raise ValueError("Mismatched parentheses")
         postfix_expression.append(stack.pop())
     return ' '.join(postfix_expression)
+
 
 def postfix_calculation(expression: str):
     """
@@ -75,35 +88,24 @@ def postfix_calculation(expression: str):
     """
     # Parse the expression into a list of tokens:
     tokens = expression.split()
-    stack = []  # Stack to hold all the operands.
+    stack = []
     for token in tokens:
-        if token not in OPERATORS.keys():  # If the token is an operand, push it to the stack.
+        if token not in OPERATORS.keys():
             if '.' in token:
                 stack.append(float(token))
             else:
                 stack.append(int(token))
-        else:  # If the token is an operator, calculate the expression and push it back to the stack.
+        else:
             operator = OPERATORS.get(token)
             position = operator.position()
             if position == "middle":
                 value1 = stack.pop()
                 value2 = stack.pop()
                 stack.append(operator.operate(value2, value1))
-            elif position == "left":
+            elif position == "left":  # Postfix operator
                 value = stack.pop()
                 stack.append(operator.operate(value))
-            elif position == "right":
+            elif position == "right":  # Prefix operator
                 value = stack.pop()
                 stack.append(operator.operate(value))
     return stack.pop()
-
-
-
-
-
-
-
-
-
-
-
