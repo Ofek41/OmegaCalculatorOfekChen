@@ -5,10 +5,12 @@ from operators import *
 def check_full_validation_of_expression(expression: str) -> list:
     """
     This function gets the string expression and makes all the required validations,
-    according to the function in the parsing_expression file.
+    according to the functions in the parsing_expression file.
     """
-    print("Validating expression:", expression)
     try:
+        # Validate invalid characters or gibberish:
+        check_invalid_character(expression)
+        check_gibberish_expression(expression)
         # Convert the expression into a list of tokens:
         tokens = expression_to_list(expression)
         # Check all the minus signs:
@@ -21,9 +23,6 @@ def check_full_validation_of_expression(expression: str) -> list:
         tokens = apply_tilde(tokens)
         # Validate operators and operands:
         validate_operators(tokens)
-        # Validate invalid characters or gibberish:
-        check_invalid_character(expression)
-        check_gibberish_expression(expression)
         return tokens
     except Exception as exc:
         raise ValueError(f"Validation error in the expression: {exc}")
@@ -37,30 +36,33 @@ def list_to_expression(tokens)->str:
         expression_string+=token
     return expression_string
 
-def infix_to_postfix(expression:str):
+def infix_to_postfix(expression: str):
     """
     This function gets a string expression in infix form and returns its postfix form.
+    It also deals with float numbers and multi digits numbers.
     """
-    stack = [] # Stack that holds all the operators
-    postfix_expression = ""
-    for index in range(len(expression)):
-        char = expression[index]
-        # If the char is an operand:
-        if char not in OPERATORS.keys() and char not in "()":
-            postfix_expression+=char
-        elif char=='(': stack.append('(') # If the char is a parenthesis
-        elif char==')':
-            while stack[-1]!='(':
-                postfix_expression+=stack.pop()
-            stack.pop()
-        else: # If the char is an operator:
-            temp = OPERATORS.get(stack[-1]) # Get the operator on the top of the stack
-            while stack and OPERATORS.get(char).priority() <= temp.priority():
-                postfix_expression+=stack.pop()
-            stack.append(char)
-    while stack:
-        postfix_expression+=stack.pop()
-    return postfix_expression
+    tokens = expression_to_list(expression)
+    stack = []  # Stack that holds all the operators
+    postfix_expression = []  # List for the postfix expression
+    for token in tokens:
+        if token not in OPERATORS.keys() and token not in "()":
+            postfix_expression.append(token)
+        elif token == '(':  # Opening parenthesis
+            stack.append(token)
+        elif token == ')':  # Closing parenthesis
+            while stack and stack[-1] != '(':
+                postfix_expression.append(stack.pop())
+            stack.pop()  # Remove the opening parenthesis
+        else:
+            while (stack and stack[-1] != '(' and
+                   OPERATORS.get(token).priority() <= OPERATORS.get(stack[-1]).priority()):
+                postfix_expression.append(stack.pop())
+            stack.append(token)
+    while stack:  # Pop any remaining operators
+        postfix_expression.append(stack.pop())
+    return ' '.join(postfix_expression)  # Return the postfix expression as a string.
+
+
 
 
 
