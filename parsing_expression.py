@@ -81,28 +81,21 @@ def process_tilde(tokens_list) -> list:
     while index < len(tokens_list):
         token = tokens_list[index]
         if token == '~':
-            # Tilde cannot be after a number or a closing parenthesis:
             if index > 0:
                 prev_token = tokens_list[index - 1]
                 if prev_token.replace('.', '', 1).isdigit() or prev_token == ')':
                     raise ValueError("Tilde cannot be after a number or parenthesis.")
-            # Tilde cannot be at the end of the expression:
             if index + 1 >= len(tokens_list):
                 raise ValueError("Invalid use of tilde at the end of expression.")
             next_token = tokens_list[index + 1]
-            # If the next token is a number, negate it:
             if next_token.replace('.', '', 1).isdigit():
-                negated_value = -float(next_token)
-                if negated_value.is_integer():
-                    negated_value = int(negated_value)
-                new_tokens.append(str(negated_value))
+                new_tokens.append('~')
+                new_tokens.append(next_token)
                 index += 1
             elif next_token == '(':
-                # Tilde before parentheses:
-                new_tokens.append(token)
+                new_tokens.append('~')
             elif next_token == '~':
-                # Multiple tildes:
-                new_tokens.append(token)
+                new_tokens.append('~')
             else:
                 raise ValueError("Invalid token after tilde.")
         else:
@@ -122,54 +115,33 @@ def apply_tilde(tokens_list)->list:
         if token == '~':
             tilde_count = 1
             index += 1
-            # Count following tildes:
+            # Counting more than one tilde:
             while index < len(tokens_list) and tokens_list[index] == '~':
                 tilde_count += 1
                 index += 1
-            # Check the next token after the tildes
             if index >= len(tokens_list):
-                raise ValueError("Invalid use of tilde at the end of expression at.")
+                raise ValueError("Invalid use of tilde at the end of expression.")
             next_token = tokens_list[index]
-            negative = tilde_count % 2 == 1  # Check if necessary to negate the number
-            if isinstance(next_token, (int,float)):
-                # Convert the number and apply negation if necessary
-                number = float(next_token)
-                if negative:
-                    number = -number
-                new_tokens.append(str(number))
-                index += 1
-            elif next_token == '-':
-                # Deals with negative numbers after the tilde, and make them positive:
-                index += 1
-                if index >= len(tokens_list):
-                    raise ValueError("Invalid use of minus after tilde.")
-                num_token = tokens_list[index]
-                if isinstance(num_token, (int,float)):
-                    number = float(num_token)
-                    if negative:
-                        number = -(-number)
-                    else:
-                        number = -number
-                    new_tokens.append(str(number))
-                    index += 1
-                else:
-                    raise ValueError("Invalid token after using tilde and then minus.")
-            elif next_token == '(':
-                # Deals with parenthesis in the expression:
-                if negative:
-                    # If we need to negate, add a minus sign before the opening parenthesis
+            # If the count of ~ is even they cancel each other:
+            need_tilde = (tilde_count % 2 == 1)
+            if next_token.replace('.', '', 1).isdigit():
+                if need_tilde:
                     new_tokens.append('~')
-                # Add the opening parenthesis
+                new_tokens.append(next_token)
+                index += 1
+            elif next_token == '(':
+                if need_tilde:
+                    new_tokens.append('~')
                 new_tokens.append('(')
                 index += 1
                 paren_count = 1
                 while index < len(tokens_list) and paren_count > 0:
-                    token = tokens_list[index]
-                    if token == '(':
+                    mini = tokens_list[index]
+                    if mini == '(':
                         paren_count += 1
-                    elif token == ')':
+                    elif mini == ')':
                         paren_count -= 1
-                    new_tokens.append(token)
+                    new_tokens.append(mini)
                     index += 1
                 if paren_count != 0:
                     raise ValueError("Unmatched parentheses after tilde operator.")

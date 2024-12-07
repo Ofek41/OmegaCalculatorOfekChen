@@ -1,7 +1,7 @@
 from .base_operator import Operator
 class Negative(Operator):
     def priority(self):
-        return 6
+        return 2
     def position(self):
         return "right"  # Prefix operator
     def operate(self, op):
