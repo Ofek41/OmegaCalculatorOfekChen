@@ -25,17 +25,17 @@ def expression_to_list(expression: str) -> list:
 
 def deal_with_minus(tokens) -> list:
     """
-    This function deals with every minus in the expression and creates a new list.
+    This function deals  with every minus in the expression list, and returns a new one.
     """
     new_tokens = []
-    for index, token in enumerate(tokens):
+    for i, token in enumerate(tokens):
         if token == '-':
-            if index == 0 or tokens[index - 1] in OPERATORS.keys() or tokens[index - 1] == '(':
-                # Replace unary minus with tilde:
+            if i == 0 or (tokens[i-1] in OPERATORS.keys() and tokens[i-1] != '!') or tokens[i-1] == '(':
+                # Unary minus:
                 new_tokens.append('~')
             else:
                 # Binary minus:
-                new_tokens.append(token)
+                new_tokens.append('-')
         else:
             new_tokens.append(token)
     return new_tokens
@@ -169,15 +169,15 @@ def validate_operators(tokens):
             elif position == "left":
                 if index == 0:
                     if token == '~':
-                        # Allow '~' at the beginning (unary minus)
+                        # Allow tilde at the beginning as it functions as unary minus
                         continue
                     else:
                         raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the left side!")
-                if tokens[index - 1] in OPERATORS.keys() and OPERATORS[tokens[index - 1]].position() != 'left':
+                if tokens[index - 1] in OPERATORS.keys() and OPERATORS[tokens[index - 1]].position() != "left":
                     raise ValueError(f"Invalid operand for operator '{token}'!")
             elif position == "right":
                 if index == len(tokens) - 1:
                     raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the right side!")
                 # Allow multiple prefix operators
-                if tokens[index + 1] in OPERATORS.keys() and OPERATORS[tokens[index + 1]].position() != 'right':
+                if tokens[index + 1] in OPERATORS.keys() and OPERATORS[tokens[index + 1]].position() != "right":
                     raise ValueError(f"Invalid operand for operator '{token}'!")

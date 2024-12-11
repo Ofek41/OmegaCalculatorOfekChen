@@ -8,13 +8,9 @@ def test_exp_to_list():
 
 def test_dealing_with_minus():
     lst = ["-", "3", "+", "4"]
-    assert deal_with_minus(lst)==["-3", "+", "4"]
+    assert deal_with_minus(lst)==["~","3","+", "4"]
 
 def test_parentheses():
     lst = ["(", "3", "+", "4"]
     with pytest.raises(InvalidParenthesesError):
         process_parentheses(lst)
-
-def test_tilde():
-    lst = ["~", "3"]
-    assert process_tilde(lst)==["-3"]

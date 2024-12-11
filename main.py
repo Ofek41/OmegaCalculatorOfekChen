@@ -25,7 +25,7 @@ def main():
                 result = int(result)
             print("The result is:", result)
         except Exception as e: # If an error was raised, present it.
-            print("Error: ", e)
+            print("Error:", e)
 
 if __name__ == "__main__":
     main()

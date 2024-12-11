@@ -9,10 +9,13 @@ def check_invalid_character(expression: str):
     exception with a matching message and the exact position and char.
     """
     index = 0
+    invalid_positions = []
     for char in expression:
         if char not in VALID_CHARACTERS and char not in OPERATORS.keys():
-            raise InvalidCharacterInExpressionError(f"Invalid character '{char}' in position {index + 1}.")
+            invalid_positions.append(index)
         index += 1
+    if len(invalid_positions)!=0:
+        raise InvalidCharacterInExpressionError(f"Invalid character in positions: {invalid_positions}")
 
 def check_gibberish_expression(expression: str):
     """
