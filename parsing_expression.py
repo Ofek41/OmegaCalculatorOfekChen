@@ -154,30 +154,32 @@ def apply_tilde(tokens_list)->list:
 
 def validate_operators(tokens):
     """
-    This function gets a token list of the expression and validates all the operators in it,
-    including position and validation of the operands.
+    Validates all operators in the token list, including position and operands.
     """
     for index, token in enumerate(tokens):
         if token in OPERATORS.keys():
             operator = OPERATORS[token]
             position = operator.position()
-            if position == "middle":
+            if position == "middle":  # Binary operator
                 if index == 0 or index == len(tokens) - 1:
                     raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have operands from both sides!")
-                if tokens[index - 1] in OPERATORS.keys() or tokens[index + 1] in OPERATORS.keys():
+                if (
+                    tokens[index - 1] in OPERATORS.keys() and
+                    OPERATORS[tokens[index - 1]].position() != "left"  # Allow postfix operators
+                ) or tokens[index + 1] in OPERATORS.keys():
                     raise ValueError(f"Invalid operands for operator '{token}'!")
-            elif position == "left":
-                if index == 0:
-                    if token == '~':
-                        # Allow tilde at the beginning as it functions as unary minus
-                        continue
-                    else:
-                        raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the left side!")
-                if tokens[index - 1] in OPERATORS.keys() and OPERATORS[tokens[index - 1]].position() != "left":
-                    raise ValueError(f"Invalid operand for operator '{token}'!")
-            elif position == "right":
-                if index == len(tokens) - 1:
+            elif position == "left":  # Postfix operator
+                # Check that there's an operand to the left
+                if index == 0 or (
+                    tokens[index - 1] in OPERATORS.keys() and
+                    OPERATORS[tokens[index - 1]].position() != "left"
+                ):
+                    raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the left side!")
+                # Check what comes after a postfix operator.
+                if index < len(tokens) - 1:
+                    next_token = tokens[index + 1]
+                    if next_token not in OPERATORS.keys() and next_token not in ['(', ')']:
+                        raise ValueError(f"Invalid token '{next_token}' after postfix operator '{token}'.")
+            elif position == "right":  # Unary prefix operator
+                if index == len(tokens) - 1 or tokens[index + 1] in OPERATORS.keys():
                     raise UnmatchedOperandsAndOperatorsError(f"{token} needs to have an operand on the right side!")
-                # Allow multiple prefix operators
-                if tokens[index + 1] in OPERATORS.keys() and OPERATORS[tokens[index + 1]].position() != "right":
-                    raise ValueError(f"Invalid operand for operator '{token}'!")
