@@ -7,3 +7,6 @@ class Multiply(Operator):
     def operate(self, op1, op2):
         self.validate(op1, op2)
         return op1 * op2
+
+    def arity(self):
+        return 2

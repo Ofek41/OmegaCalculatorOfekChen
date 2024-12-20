@@ -1,105 +1,73 @@
 from parsing_expression import *
 from implementing_custom_exceptions import *
 from operators import *
-from operators_config import OPERATORS
 
 def check_full_validation_of_expression(expression: str) -> list:
-    """
-    This function gets the string expression and makes all the required validations,
-    according to the functions in the parsing_expression file.
-    """
     if not expression.strip():
-        raise ValueError("The expression is empty")
-    expression = expression.replace(" ", "") # Removing all white spaces
+        raise EmptyExpressionError("The expression is empty.")
+    expression = expression.replace(" ", "")  # Remove spaces
     check_invalid_character(expression)
     check_gibberish_expression(expression)
     tokens = expression_to_list(expression)
-    tokens = deal_with_minus(tokens)
-    tokens = process_parentheses(tokens)
-    tokens = process_tilde(tokens)
-    tokens = apply_tilde(tokens)
-    validate_operators(tokens)
-    return tokens # Return tokens after all validations
+    tokens = minus_parse(tokens)  # Process minus signs
+    tokens = process_tilde(tokens)  # Handle tilde
+    for index, token in enumerate(tokens):
+        if token in OPERATORS:
+            tokens[index] = OPERATORS[token]
+    return tokens
 
-
-def infix_to_postfix(expression: str):
-    """
-    Converts an infix expression to a postfix expression.
-    """
-    tokens = check_full_validation_of_expression(expression) # Get the exp after validations
-    stack = []
-    postfix_expression = []
-    i = 0
-    while i < len(tokens):
-        token = tokens[i]
-        if token not in OPERATORS.keys() and token not in "()": # The token is an operand
+def infix_to_postfix(tokens: list):
+    stack = []  # Operator stack
+    postfix_expression = []  # Resulting postfix expression
+    for token in tokens:
+        if isinstance(token, str) and token.replace('.', '', 1).isdigit():  # Operand
             postfix_expression.append(token)
-            i += 1
-            # Handle postfix operators:
-            while i < len(tokens) and tokens[i] in OPERATORS.keys() and OPERATORS[tokens[i]].position() == 'left':
-                postfix_expression.append(tokens[i])
-                i += 1
+        elif isinstance(token, Operator):  # Operators
+            while stack and isinstance(stack[-1], Operator) and (stack[-1].priority()>token.priority() or
+                stack[-1].priority()==token.priority() and not isinstance(token, (UMinus, SMinus))):
+                popped = stack.pop()
+                postfix_expression.append(popped)
+            if token.position()=="left":
+                postfix_expression.append(token)
+            else:
+                stack.append(token)
         elif token == '(':
             stack.append(token)
-            i += 1
         elif token == ')':
             while stack and stack[-1] != '(':
-                postfix_expression.append(stack.pop())
+                popped = stack.pop()
+                postfix_expression.append(popped)
             if not stack or stack[-1] != '(':
-                raise InvalidParenthesesError("Unmatched parentheses")
-            stack.pop()
-            i += 1
-            # Handle postfix operators after parentheses:
-            while i < len(tokens) and tokens[i] in OPERATORS.keys() and OPERATORS[tokens[i]].position() == 'left':
-                postfix_expression.append(tokens[i])
-                i += 1
-        else:
-            operator = OPERATORS[token]
-            position = operator.position()
-            if position == 'right':  # Prefix operator
-                stack.append(token)
-                i += 1
-            elif position == 'middle':
-                while (stack and stack[-1] != '(' and
-                       OPERATORS.get(stack[-1]).priority() >= operator.priority()):
-                    postfix_expression.append(stack.pop())
-                stack.append(token)
-                i += 1
-            else:
-                raise ValueError(f"Unexpected operator '{token}' in this context")
+                raise InvalidParenthesesError("Unmatched parentheses.")
+            stack.pop()  # Remove the '('
     while stack:
-        if stack[-1] == '(' or stack[-1] == ')':
-            raise InvalidParenthesesError("Unmatched parentheses")
-        postfix_expression.append(stack.pop())
-    return ' '.join(postfix_expression)
+        if stack[-1] == '(':
+            raise InvalidParenthesesError("Unmatched parentheses.")
+        popped = stack.pop()
+        postfix_expression.append(popped)
+    return postfix_expression
 
 
-def postfix_calculation(expression: str):
-    """
-    This function gets a postfix expression as a string and returns the result.
-    """
-    # Parse the expression into a list of tokens:
-    tokens = expression.split()
+def postfix_calculation(expression: list):
     stack = []
-    for token in tokens:
-        if token not in OPERATORS.keys():
-            if '.' in token:
-                stack.append(float(token))
-            else:
-                stack.append(int(token))
-        else:
-            operator = OPERATORS.get(token)
-            position = operator.position()
-            if position == "middle":
-                if len(stack)<2:
-                    raise UnmatchedOperandsAndOperatorsError("Nou enough operands for the operator!")
-                value1 = stack.pop()
-                value2 = stack.pop()
-                stack.append(operator.operate(value2, value1))
-            elif position == "left":  # Postfix operator
-                value = stack.pop()
-                stack.append(operator.operate(value))
-            elif position == "right":  # Prefix operator
-                value = stack.pop()
-                stack.append(operator.operate(value))
+    for token in expression:
+        if isinstance(token, str) and token.replace('.', '', 1).isdigit():  # Operand
+            stack.append(float(token) if '.' in token else int(token))
+        elif isinstance(token, Operator):  # Operator
+            arity = token.arity()
+            if arity == 1:  # Unary operator
+                if not stack:
+                    raise UnmatchedOperandsAndOperatorsError(f"Operator '{token}' requires one operand.")
+                operand = stack.pop()
+                result = token.operate(operand)
+                stack.append(result)
+            elif arity == 2:  # Binary operator
+                if len(stack) < 2:
+                    raise UnmatchedOperandsAndOperatorsError(f"Operator '{token}' requires two operands.")
+                b = stack.pop()
+                a = stack.pop()
+                result = token.operate(a, b)
+                stack.append(result)
+    if len(stack)>1:
+        raise ValueError("There are missing operators in your expression!")
     return stack.pop()

@@ -7,4 +7,6 @@ class Average(Operator):
         return 5
     def operate(self, op1, op2):
         self.validate(op1, op2)
-        return (op1+op2)/2
+        return (float(op1) + float(op2)) / 2
+    def arity(self):
+        return 2

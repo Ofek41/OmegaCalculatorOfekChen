@@ -1,16 +1,27 @@
 import pytest
 from parsing_expression import *
-from custom_exceptions import InvalidParenthesesError
 
-def test_exp_to_list():
-    exp = "3+4"
-    assert expression_to_list(exp)== ["3", "+", "4"]
+def test_expression_to_list():
+    expression = "3+5-6"
+    expression_list = ['3','+','5','-','6']
+    assert expression_to_list(expression) == expression_list
 
-def test_dealing_with_minus():
-    lst = ["-", "3", "+", "4"]
-    assert deal_with_minus(lst)==["~","3","+", "4"]
-
-def test_parentheses():
-    lst = ["(", "3", "+", "4"]
+def test_unmatched_closing_parentheses():
+    expression_list = ['(', '4', '+', '5']
     with pytest.raises(InvalidParenthesesError):
-        process_parentheses(lst)
+        process_parentheses(expression_list)
+
+def test_unmatched_opening_parentheses():
+    expression_list = ['4', '+', '5', ')']
+    with pytest.raises(InvalidParenthesesError):
+        process_parentheses(expression_list)
+
+def test_two_tildes_in_a_row():
+    expression_list = ['~', '~', '5']
+    with pytest.raises(TildeError):
+        process_tilde(expression_list)
+
+def test_invalid_tilde_position():
+    expression_list = ['5', '~']
+    with pytest.raises(TildeError):
+        process_tilde(expression_list)

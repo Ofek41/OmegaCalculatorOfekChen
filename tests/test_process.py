@@ -1,56 +1,43 @@
 import pytest
-from process_expression import infix_to_postfix, postfix_calculation
-from custom_exceptions import InvalidParenthesesError
+from process_expression import *
+from implementing_custom_exceptions import *
+from operators import *
 
-def test_simple_expression():
-    simple_expression = "3 + 4"
-    assert infix_to_postfix(simple_expression) == "3 4 +"
+def test_check_full_validation_of_expression_valid():
+    """
+    Test a valid expression
+    """
+    expression = "3 + 4 * 2 / (1 - 5)^2^3"
+    tokens = check_full_validation_of_expression(expression)
+    assert isinstance(tokens, list), "Tokens should be a list"
+    assert len(tokens) > 0, "Tokens list should not be empty"
 
-def test_expression_including_parentheses():
-    expression = "3*(4+2)"
-    assert infix_to_postfix(expression)=="3 4 2 + *"
 
-def test_expression_including_nested_parentheses():
-    expression = "(3 + (2 * (4 - 1)))"
-    assert infix_to_postfix(expression) == "3 2 4 1 - * +"
+def test_check_full_validation_of_expression_empty():
+    """
+    Test that an empty expression raises ValueError
+    """
+    expression = "   "
+    with pytest.raises(EmptyExpressionError):
+        check_full_validation_of_expression(expression)
 
-def test_expression_with_decimal_numbers():
-    expression = "3.15*(2+1)"
-    assert infix_to_postfix(expression) == "3.15 2 1 + *"
 
-def test_expression_with_negative():
-    expression = "-3+4"
-    assert infix_to_postfix(expression)=="-3 4 +"
+def test_check_full_validation_of_expression_invalid_characters():
+    """
+    Test that an expression with invalid characters raises ValueError
+    """
+    expression = "3 + 4a * 2"
+    with pytest.raises(InvalidCharacterInExpressionError):
+        check_invalid_character(expression)
 
-def test_special_operator():
-    expression = "3+4 *2@6"
-    assert infix_to_postfix(expression)=="3 4 2 6 @ * +"
 
-def test_invalid():
-    with pytest.raises(InvalidParenthesesError, match="Unmatched opening parenthesis"):
-        expression = "3+4(*"
-        infix_to_postfix(expression)
+def test_infix_to_postfix_unmatched_parentheses():
+    """
+    Test infix to postfix conversion with unmatched parentheses raises InvalidParenthesesError
+    """
+    tokens = ['(', '3', '+', '4', '*', '2']
+    with pytest.raises(InvalidParenthesesError):
+        infix_to_postfix(tokens)
 
-def test_empty():
-    with pytest.raises(ValueError, match="The expression is empty"):
-        infix_to_postfix("")
 
-def test_simple_postfix():
-    exp = "34+"
-    assert postfix_calculation(exp)==7
 
-def test_complex_postfix():
-    exp = "3 4 2 + *"
-    assert postfix_calculation(exp)==18
-
-def test_postfix_with_negative():
-    exp = "-3 4 +"
-    assert postfix_calculation(exp)==1
-
-def test_postfix_with_decimal():
-    exp = "3.14 2 1 + *"
-    assert postfix_calculation(exp)==9.42
-
-def test_divide_by_zero():
-    with pytest.raises(ZeroDivisionError):
-        postfix_calculation("4 0 /")

@@ -7,3 +7,5 @@ class Add(Operator):
     def operate(self, operator1, operator2):
         self.validate(operator1, operator2)
         return operator1 + operator2
+    def arity(self):
+        return 2

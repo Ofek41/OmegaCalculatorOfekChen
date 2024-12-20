@@ -7,9 +7,10 @@ class Modulo(Operator):
         return "middle"
 
     def operate(self, op1, op2):
-        self.validate(op1, op2)
-        if not isinstance(op1, int) or not isinstance(op2, int) or op1 < 0 or op2 < 0:
-            raise ValueError("Can only modulo on non-negative integers.")
         if op2 == 0:
-            raise ZeroDivisionError("Tried to modulo by zero.")
+            raise ZeroDivisionError("Cannot modulo by zero.")
+        self.validate(op1, op2)
         return op1 % op2
+
+    def arity(self):
+        return 2

@@ -10,3 +10,5 @@ from .mul_operator import Multiply
 from .pow_operator import Power
 from .sub_operator import Sub
 from .tilde_operator import Negative
+from .UMinus_operator import UMinus
+from .SMinus_operator import SMinus

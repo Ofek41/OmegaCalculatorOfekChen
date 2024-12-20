@@ -23,3 +23,10 @@ def test_hashtag_exception():
     number = -56
     with pytest.raises(ValueError):
         hashtag.operate(number)
+
+def test_double_hashtag():
+    hashtag = Hashtag()
+    number = 178
+    hashtag2 = Hashtag()
+    calc = hashtag2.operate(178)
+    assert hashtag.operate(calc)==7

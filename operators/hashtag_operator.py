@@ -16,3 +16,6 @@ class Hashtag(Operator):
         for digit in str_number:
             sum_digits+=int(digit)
         return sum_digits
+
+    def arity(self):
+        return 1

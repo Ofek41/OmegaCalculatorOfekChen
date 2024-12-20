@@ -28,3 +28,24 @@ class UnmatchedOperandsAndOperatorsError(Exception):
     """
     def __init__(self, message):
         super().__init__(message)
+
+class TildeError(Exception):
+    """
+    Exception that is raised when the user inserted a tilde in an invalid way.
+    """
+    def __init__(self, message):
+        super().__init__(message)
+
+class MinusError(Exception):
+    """
+    Exception that is raised when the user inserted a minus in an invalid way.
+    """
+    def __init__(self, message):
+        super().__init__(message)
+
+class EmptyExpressionError(Exception):
+    """
+    Exception that is raised when the user inserted an empty expression.
+    """
+    def __init__(self, message):
+        super().__init__(message)

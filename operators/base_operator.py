@@ -17,3 +17,7 @@ class Operator(ABC):
         for arg in args:
             if not isinstance(arg, (int, float)):
                 raise ValueError("Invalid operators! Operators must be integers or floats!")
+
+    @abstractmethod
+    def arity(self):
+        pass

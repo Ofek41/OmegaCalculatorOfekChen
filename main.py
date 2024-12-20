@@ -1,31 +1,32 @@
-# Importing my modules:
-from operators import *
-from custom_exceptions import *
-from implementing_custom_exceptions import *
-from parsing_expression import *
+import traceback
 from process_expression import *
-from operators_config import OPERATORS
 
 def main():
+    # Instructions for the user:
     print("Hello! Welcome to the calculator!")
     print("Please enter a math expression and you will get the result within seconds!")
-    print("If you would like to quit, just type exit!")
+    print("If you would like to quit, just type quit!")
     while True:
         expression = input("Your expression: ")
-        if expression.strip().lower() == "exit": # Checking if the user inserted "exit"
+        if expression.strip().lower() == "quit":  # Checking if the user inserted "quit"
             print("Goodbye, thank you for using!")
             break
         try:
-            # Converting the exp from infix to postfix:
-            postfix_expression = infix_to_postfix(expression)
-            # Calculating the result based on postfix exp:
+            tokens = check_full_validation_of_expression(expression)
+            # Convert the expression from infix to postfix:
+            postfix_expression = infix_to_postfix(tokens)
+            # Calculate the result based on postfix exp:
             result = postfix_calculation(postfix_expression)
-            # Checking if the result is int or float:
+            # Check if the result is int or float:
             if isinstance(result, float) and result.is_integer():
                 result = int(result)
+            # Present the result:
             print("The result is:", result)
-        except Exception as e: # If an error was raised, present it.
+        # If any error was raised, present it with trace details
+        except Exception as e:
             print("Error:", e)
+            print("Traceback:")
+            traceback.print_exc()
 
 if __name__ == "__main__":
     main()
