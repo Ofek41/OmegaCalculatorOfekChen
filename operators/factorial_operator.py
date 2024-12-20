@@ -1,4 +1,5 @@
 from .base_operator import Operator
+from custom_exceptions import MathematicsError
 class Factorial(Operator):
     def priority(self):
         return 6
@@ -8,7 +9,7 @@ class Factorial(Operator):
 
     def operate(self, op):
         if not isinstance(op, (int, float)) or int(op)!=op or op < 0:
-            raise ValueError("Factorial is only defined for non-negative integers.")
+            raise MathematicsError("Factorial is only defined for non-negative integers.")
         op = int(op)
         result = 1
         for i in range(1, int(op) + 1):

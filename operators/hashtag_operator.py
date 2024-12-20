@@ -1,4 +1,5 @@
 from .base_operator import Operator
+from custom_exceptions import MathematicsError
 class Hashtag(Operator):
     def priority(self):
         return 6
@@ -9,7 +10,9 @@ class Hashtag(Operator):
     def operate(self, op):
         self.validate(op)
         if op<0:
-            raise ValueError("Cannot sum digits of a negative number.")
+            raise MathematicsError("Cannot sum digits of a negative number.")
+        if 'e' in op:
+            raise MathematicsError("Too large number for # operator.")
         str_number = str(op)
         str_number = str_number.replace('.', '')
         sum_digits = 0

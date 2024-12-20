@@ -49,3 +49,10 @@ class EmptyExpressionError(Exception):
     """
     def __init__(self, message):
         super().__init__(message)
+
+class MathematicsError(Exception):
+    """
+    Exception that is raised when the user inserted an expression with a mathematics error.
+    """
+    def __init__(self, message):
+        super().__init__(message)
