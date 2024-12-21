@@ -1,6 +1,6 @@
 import pytest
-import operators.hashtag_operator
 from implementing_custom_exceptions import *
+from custom_exceptions import MathematicsError
 from operators.hashtag_operator import Hashtag
 
 def test_invalid_char():
@@ -21,12 +21,11 @@ def test_hashtag():
 def test_hashtag_exception():
     hashtag = Hashtag()
     number = -56
-    with pytest.raises(ValueError):
+    with pytest.raises(MathematicsError):
         hashtag.operate(number)
 
 def test_double_hashtag():
     hashtag = Hashtag()
-    number = 178
     hashtag2 = Hashtag()
     calc = hashtag2.operate(178)
     assert hashtag.operate(calc)==7

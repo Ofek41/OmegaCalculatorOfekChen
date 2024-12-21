@@ -1,4 +1,5 @@
-# Creating custom exceptions for the calculator:
+# Creating custom exceptions for the calculator. Every exception inherits from the upper class Exception,
+# so in the function main, if an error was caught, it will be raised and presented to the user.
 class InvalidParenthesesError(Exception):
     """
     Exception that is raised when the user made mistake when defining the parentheses in the expression.

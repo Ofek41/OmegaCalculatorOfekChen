@@ -1,4 +1,3 @@
-
 from process_expression import *
 
 def main():
@@ -20,7 +19,6 @@ def main():
             print("The result is:", result)
         except Exception as e:
             print("Error:", e)
-            print("Traceback:")
 
 if __name__ == "__main__":
     main()

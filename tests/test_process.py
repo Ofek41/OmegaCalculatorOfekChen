@@ -1,7 +1,6 @@
 import pytest
 from process_expression import *
 from implementing_custom_exceptions import *
-from operators import *
 
 def test_check_full_validation_of_expression_valid():
     """
@@ -39,5 +38,18 @@ def test_infix_to_postfix_unmatched_parentheses():
     with pytest.raises(InvalidParenthesesError):
         infix_to_postfix(tokens)
 
+def test_minus_parses(tokens_with_minus):
+    for tokens, expected in tokens_with_minus:
+        parsed = minus_parse(tokens)
+        assert all(str(type(t)) == e for t,e in zip(parsed, expected))
 
+def test_validate_left_operators_invalid():
+    invalid_tokens = [["+", "3", "4"], ["3", "!"], ["2", "#"]]
+    for tokens in invalid_tokens:
+        with pytest.raises(Exception):
+            validate_left_operators(tokens)
 
+def test_postfix_calculation(postfix_expressions):
+    for expression, expected in postfix_expressions:
+        result = postfix_calculation(expression)
+        assert result == expected
