@@ -3,11 +3,13 @@ from abc import ABC, abstractmethod
 class Operator(ABC):
     @abstractmethod
     def priority(self):
-        pass # This function returns the operators priority comparing to the other ones.
+        # This function returns the operators priority comparing to the other ones.
+        pass
 
     @abstractmethod
     def position(self):
-        pass # This function returns the operator position in the expression.
+        # This function returns the operator position in the expression.
+        pass
 
     @staticmethod
     def validate(*args):
@@ -21,4 +23,5 @@ class Operator(ABC):
 
     @abstractmethod
     def arity(self):
-        pass # This function returns 1 if the operators is unary, and 2 if binary.
+        # This function returns 1 if the operators is unary, and 2 if binary.
+        pass

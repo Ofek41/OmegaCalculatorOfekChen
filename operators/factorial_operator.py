@@ -5,7 +5,8 @@ class Factorial(Operator):
         return 6
 
     def position(self):
-        return "left"  # Postfix operator
+        # Postfix operator
+        return "left"
 
     def operate(self, op):
         if not isinstance(op, (int, float)) or int(op)!=op or op < 0:

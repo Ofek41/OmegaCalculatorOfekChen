@@ -8,7 +8,7 @@ def main():
     print("If you would like to quit, just type quit!")
     while True:
         expression = input("Your expression: ")
-        if expression.strip().lower() == "quit":  # Checking if the user inserted "quit"
+        if expression.strip().lower() == "quit":
             print("Goodbye, thank you for using!")
             break
         try:

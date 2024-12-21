@@ -2,7 +2,8 @@
 from .base_operator import Operator
 class SMinus(Operator):
     def priority(self):
-        return 10 # Highest priority
+        # Highest priority
+        return 10
 
     def position(self):
         return "right"
