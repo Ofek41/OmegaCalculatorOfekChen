@@ -1,41 +1,65 @@
 # Creating custom exceptions for the calculator:
-"""
-Exception that is raised when the user made mistake when defining the parentheses in the expression.
-"""
 class InvalidParenthesesError(Exception):
+    """
+    Exception that is raised when the user made mistake when defining the parentheses in the expression.
+    """
     def __init__(self, message):
         super().__init__(message)
 
-    def __str__(self):
-        return "Error message:",
-
-"""
-Exception that is raised when the user inserted invalid characters into the expression.
-"""
 class InvalidCharacterInExpressionError(Exception):
+    """
+    Exception that is raised when the user inserted invalid characters into the expression.
+    """
     def __init__(self, message):
         super().__init__(message)
 
-    def __str__(self):
-        return "Error message:",
-
-"""
-Exception that is raised when the user inserted gibberish expression.
-"""
 class GibberishExpressionError(Exception):
+    """
+    Exception that is raised when the user inserted gibberish expression.
+    """
     def __init__(self, message):
         super().__init__(message)
 
-    def __str__(self):
-        return "Error message:",
 
-"""
-Exception that is raised when the user inserted an expression in which there are no matches between
-the operands and the operators: for example, two operators next to each one
-"""
 class UnmatchedOperandsAndOperatorsError(Exception):
+    """
+    Exception that is raised when the user inserted an expression in which there are no matches between
+    the operands and the operators: for example, two operators next to each one
+    """
     def __init__(self, message):
         super().__init__(message)
 
-    def __str__(self):
-        return "Error message:",
+class TildeError(Exception):
+    """
+    Exception that is raised when the user inserted a tilde in an invalid way.
+    """
+    def __init__(self, message):
+        super().__init__(message)
+
+class MinusError(Exception):
+    """
+    Exception that is raised when the user inserted a minus in an invalid way.
+    """
+    def __init__(self, message):
+        super().__init__(message)
+
+class EmptyExpressionError(Exception):
+    """
+    Exception that is raised when the user inserted an empty expression.
+    """
+    def __init__(self, message):
+        super().__init__(message)
+
+class MathematicsError(Exception):
+    """
+    Exception that is raised when the user inserted an expression with a mathematics error.
+    """
+    def __init__(self, message):
+        super().__init__(message)
+
+class InvalidDecimalNumber(Exception):
+    """
+    Exception that is raised when the user inserted an invalid decimal number.
+    """
+    def __init__(self, message):
+        super().__init__(message)
