@@ -7,7 +7,8 @@ from operators_config import find_key_by_value
 
 def expression_to_list(expression: str) -> list:
     """
-    Converts the expression string into a list of tokens.
+    Converts the expression string into a list of tokens, with taking into account decimal number and
+    numbers with more than one digit.
     """
     tokens = []
     number = ""
@@ -36,28 +37,35 @@ def minus_parse(expression: list):
     index = 0
     while index < len(expression):
         if expression[index] == '-':
+            # Check for unary minus signs:
             if index == 0 or expression[index - 1] == '(':
                 expression[index] = UMinus()
                 index += 1
+                # Unary minus signs followed by more unary minus signs:
                 while index<len(expression) and expression[index]=='-':
                     expression[index]=UMinus()
                     index+=1
                 if index < len(expression):
                     next_token = expression[index]
+                    # Check if there is an invalid token after the unary minus:
                     if not ((isinstance(next_token, str) and (next_token.replace('.', '', 1).isdigit() or next_token == '(')) or isinstance(next_token, (UMinus, SMinus))):
                         raise MinusError(f"Invalid token '{next_token}' after an unary minus.")
             elif index>0 and (expression[index-1].replace('.','',1).isdigit() or expression[index-1] in OPERATORS and OPERATORS[expression[index-1]].position()=="left"
                     or expression[index-1]==')'):
+                # Check for binary minus sign:
                 expression[index] = Sub()
                 index += 1
+                # Binary minus signs followed by sign minus signs:
                 while index < len(expression) and expression[index] == '-':
                     expression[index] = SMinus()
                     index += 1
                 if index < len(expression):
                     next_token = expression[index]
+                    # Check for an invalid token after the binary minus:
                     if not ((isinstance(next_token, str) and (next_token.replace('.', '', 1).isdigit() or next_token == '(' or next_token=='~')) or isinstance(next_token, (UMinus, SMinus))):
                         raise MinusError(f"Invalid token '{next_token}' after a binary minus.")
             elif index>0 and expression[index-1] in OPERATORS:
+                # Followed by sign minus signs:
                 while index<len(expression) and expression[index]=='-':
                     expression[index]=SMinus()
                     index+=1
@@ -68,7 +76,8 @@ def minus_parse(expression: list):
 
 def process_parentheses(tokens) -> list:
     """
-    Validates and processes parentheses in the tokens list.
+    Validates and processes parentheses in the tokens list, and checks for unmatched closing and opening
+    parentheses.
     """
     stack = []
     for index, token in enumerate(tokens):

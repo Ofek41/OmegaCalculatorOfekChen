@@ -21,7 +21,7 @@ def check_gibberish_expression(expression: str):
 
 def check_valid_decimal(expression: list):
     """
-    Validates that all numbers in the expression are valid decimals.
+    Validates that all numbers in the expression are valid decimals with only one decimal point.
     """
     for token in expression:
         if isinstance(token, str) and token.count('.') > 1:
