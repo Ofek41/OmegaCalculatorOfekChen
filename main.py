@@ -1,4 +1,4 @@
-import traceback
+
 from process_expression import *
 
 def main():
@@ -13,20 +13,14 @@ def main():
             break
         try:
             tokens = check_full_validation_of_expression(expression)
-            # Convert the expression from infix to postfix:
             postfix_expression = infix_to_postfix(tokens)
-            # Calculate the result based on postfix exp:
             result = postfix_calculation(postfix_expression)
-            # Check if the result is int or float:
             if isinstance(result, float) and result.is_integer():
                 result = int(result)
-            # Present the result:
             print("The result is:", result)
-        # If any error was raised, present it with trace details
         except Exception as e:
             print("Error:", e)
             print("Traceback:")
-            traceback.print_exc()
 
 if __name__ == "__main__":
     main()
