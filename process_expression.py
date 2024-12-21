@@ -1,6 +1,7 @@
 from parsing_expression import *
 from implementing_custom_exceptions import *
 from operators import *
+from operators_config import find_key_by_value
 
 def check_full_validation_of_expression(expression: str) -> list:
     if not expression.strip():
@@ -9,11 +10,13 @@ def check_full_validation_of_expression(expression: str) -> list:
     check_invalid_character(expression)
     check_gibberish_expression(expression)
     tokens = expression_to_list(expression)
+    check_valid_decimal(tokens)
     tokens = minus_parse(tokens)  # Process minus signs
     tokens = process_tilde(tokens)  # Handle tilde
     for index, token in enumerate(tokens):
         if token in OPERATORS:
             tokens[index] = OPERATORS[token]
+    validate_left_operators(tokens)
     return tokens
 
 def infix_to_postfix(tokens: list):
@@ -57,13 +60,15 @@ def postfix_calculation(expression: list):
             arity = token.arity()
             if arity == 1:  # Unary operator
                 if not stack:
-                    raise UnmatchedOperandsAndOperatorsError(f"Operator '{token}' requires one operand.")
+                    key = find_key_by_value(OPERATORS, token)
+                    raise UnmatchedOperandsAndOperatorsError(f"Operator '{key}' requires one operand.")
                 operand = stack.pop()
                 result = token.operate(operand)
                 stack.append(result)
             elif arity == 2:  # Binary operator
                 if len(stack) < 2:
-                    raise UnmatchedOperandsAndOperatorsError(f"Operator '{token}' requires two operands.")
+                    key = find_key_by_value(OPERATORS, token)
+                    raise UnmatchedOperandsAndOperatorsError(f"Operator '{key}' requires two operands.")
                 b = stack.pop()
                 a = stack.pop()
                 result = token.operate(a, b)

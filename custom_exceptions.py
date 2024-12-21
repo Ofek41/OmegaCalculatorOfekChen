@@ -56,3 +56,10 @@ class MathematicsError(Exception):
     """
     def __init__(self, message):
         super().__init__(message)
+
+class InvalidDecimalNumber(Exception):
+    """
+    Exception that is raised when the user inserted an invalid decimal number.
+    """
+    def __init__(self, message):
+        super().__init__(message)

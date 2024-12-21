@@ -18,3 +18,11 @@ def check_gibberish_expression(expression: str):
     """
     if all(char not in VALID_CHARACTERS and char not in OPERATORS.keys() for char in expression):
         raise GibberishExpressionError("The expression you inserted is gibberish!")
+
+def check_valid_decimal(expression: list):
+    """
+    Validates that all numbers in the expression are valid decimals.
+    """
+    for token in expression:
+        if isinstance(token, str) and token.count('.') > 1:
+            raise InvalidDecimalNumber(f"Invalid decimal number: {token}")

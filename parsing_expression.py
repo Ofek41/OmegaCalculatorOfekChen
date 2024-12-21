@@ -1,8 +1,9 @@
 from operators_config import *
-from custom_exceptions import InvalidParenthesesError, TildeError, MinusError
+from custom_exceptions import InvalidParenthesesError, TildeError, MinusError, UnmatchedOperandsAndOperatorsError
 from operators.SMinus_operator import SMinus
 from operators.UMinus_operator import UMinus
 from operators.sub_operator import Sub
+from operators_config import find_key_by_value
 
 def expression_to_list(expression: str) -> list:
     """
@@ -104,3 +105,15 @@ def process_tilde(tokens: list) -> list:
             processed.append(token)
         index += 1
     return processed
+
+def validate_left_operators(tokens: list):
+    """
+    The function validates all the operators with left position.
+    """
+    for index, token in enumerate(tokens):
+        if isinstance(token, Operator) and token.position()=="left":
+            if index==0 or not ((isinstance(tokens[index-1],str) and tokens[index-1].replace('.','',1).isdigit())
+                or tokens[index-1] == ')'):
+                    key = find_key_by_value(OPERATORS, token)
+                    raise UnmatchedOperandsAndOperatorsError(f"Operator {key} needs a valid operand"
+                                                             f"to its left at position {index}!")

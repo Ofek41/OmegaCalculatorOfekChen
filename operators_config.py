@@ -20,3 +20,12 @@ OPERATORS = {
     "U": UMinus(),
     "S": SMinus()
 }
+
+def find_key_by_value(dic, token):
+    """
+    This functions gets a dictionary and a token, and returns the value of the token's key.
+    """
+    for key, value in dic.items():
+        if type(token) is type(value):
+            return key
+    return None
