@@ -12,6 +12,7 @@ def check_full_validation_of_expression(expression: str) -> list:
     check_gibberish_expression(expression)
     tokens = expression_to_list(expression)
     check_valid_decimal(tokens)
+    tokens = process_parentheses(tokens)
     tokens = minus_parse(tokens)
     tokens = process_tilde(tokens)
     # Converting the operators to their class instance

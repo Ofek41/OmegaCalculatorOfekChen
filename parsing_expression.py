@@ -76,12 +76,13 @@ def minus_parse(expression: list):
 
 def process_parentheses(tokens) -> list:
     """
-    Validates and processes parentheses in the tokens list, and checks for unmatched closing and opening
-    parentheses.
+    Validates and processes parentheses in the tokens list.
     """
     stack = []
     for index, token in enumerate(tokens):
         if token == '(':
+            if index + 1 < len(tokens) and tokens[index + 1] == ')':
+                raise InvalidParenthesesError("Empty parentheses are not allowed.")
             stack.append(token)
         elif token == ')':
             if not stack or stack[-1] != '(':
