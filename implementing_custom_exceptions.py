@@ -6,18 +6,22 @@ VALID_CHARACTERS = "0123456789()."
 def check_invalid_character(expression: str):
     """
     Checks if the expression contains invalid characters.
-    If so, raises a single exception with all invalid character positions.
+    If so, raises a single exception with all invalid character positions and the chars themselves.
     """
+    invalid_positions = []
     for index, char in enumerate(expression):
         if char not in VALID_CHARACTERS and char not in OPERATORS.keys():
-            raise InvalidCharacterInExpressionError(f"Invalid character '{char}' in position {index+1}")
-
-def check_gibberish_expression(expression: str):
-    """
-    This function checks if the expression is gibberish. If so, it raises the custom exception.
-    """
-    if all(char not in VALID_CHARACTERS and char not in OPERATORS.keys() for char in expression):
-        raise GibberishExpressionError("The expression you inserted is gibberish!")
+            invalid_positions.append((char, index+1))
+    if invalid_positions:
+        # A message for any invalid character in expression:
+        message_parts = [f"'{char}' in position {position}" for char, position in invalid_positions]
+        # Combine all the messages together:
+        error_message = "Invalid characters in expression: " + ", \n".join(message_parts)
+        # Raise the exception if needed, if the all the chars are invalid, raise the gibberish exception:
+        if len(invalid_positions) == len(expression):
+            raise GibberishExpressionError("The expression you inserted is gibberish!")
+        else:
+            raise InvalidCharacterInExpressionError(error_message)
 
 def check_valid_decimal(expression: list):
     """
