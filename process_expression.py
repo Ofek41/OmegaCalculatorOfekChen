@@ -8,8 +8,8 @@ def check_full_validation_of_expression(expression: str) -> list:
         raise EmptyExpressionError("The expression is empty.")
     expression = expression.replace(" ", "")  # Remove spaces
     # Validating the characters:
-    check_invalid_character(expression)
     check_gibberish_expression(expression)
+    check_invalid_character(expression)
     tokens = expression_to_list(expression)
     check_valid_decimal(tokens)
     tokens = process_parentheses(tokens)

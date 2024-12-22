@@ -10,7 +10,7 @@ def check_invalid_character(expression: str):
     """
     for index, char in enumerate(expression):
         if char not in VALID_CHARACTERS and char not in OPERATORS.keys():
-            raise InvalidCharacterInExpressionError(f"Invalid character {char} in position {index+1}")
+            raise InvalidCharacterInExpressionError(f"Invalid character '{char}' in position {index+1}")
 
 def check_gibberish_expression(expression: str):
     """
